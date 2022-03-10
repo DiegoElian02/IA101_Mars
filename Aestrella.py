@@ -84,6 +84,8 @@ def astar(lab, i_s, j_s, i_e, j_e, h):
 
         #reorganiza la lista con base en 'comp', es decir, el costo total
         fringe.sort(key=comp)
+        print('iter: '+str(i))
+    
 
 
 def printsolution(sol, lab):
