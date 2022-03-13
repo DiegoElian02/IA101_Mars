@@ -103,8 +103,8 @@ mars_map = np.load('mars_map.npy')
 #valores de busqueda
 y_start = 1237
 x_start = 394
-y_end = 1172
-x_end = 620
+y_end = 1135
+x_end = 314
 block = 0.25
 
 road = astar(mars_map, y_start, x_start, y_end, x_end, block)

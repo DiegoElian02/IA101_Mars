@@ -1,0 +1,91 @@
+import numpy as np
+import plotly.express as px
+import time
+
+def IDS(lab, i_s, j_s, i_e, j_e, h):
+    #establece el tamaño del laberinto
+    width = len(lab[0])
+    height = len(lab)
+
+    #q = lista de tuplas
+    #Los argumentos son: coordenadas, camino que ha seguido, costo del camino (que es 0 porque es el inicio)
+    q = [((i_s, j_s), list(), 0)]
+
+    #diccionario vacío, este tendrá las casillas visitadas junto con su path cost
+    visited = {}
+    leaves=list()
+    i=0
+    while i<50000:
+        i+=1
+
+        #lista para guardar las hojas del arbol
+        maxLevel=50
+        #obtiene el primer objeto en la lista 'q' y lo elimina de esta
+
+        if len(q)!=0:
+            state = q.pop()
+        else:#Si el queue esta vacio vamos a agregar las hojas y aumentar la profundidad maxima
+            q.extend(leaves)
+            state = q.pop()
+            maxLevel+=50
+            leaves=list()
+
+        if state[0] in visited:
+            #si la coordenada que se obtuvo ya ha sido visitada, se salta este objeto y continúa al siguiente
+            continue
+
+        (i, j) = state[0] #asigna a i,j el valor de la coordenada ubicada en el primer objeto de la tupla
+        if (i,j) == (i_e,j_e): #goal check
+            path = [state[0]] + state[1] #agrega a path state[0] (la coord final) y state[1] (las coordenadas seguidas anteriormente)
+            path.reverse() #invierte la lista para tener el camino tal cual se siguió
+            print(state[2])
+            return path
+
+        #set the cost
+        visited[(i, j)] = state[2]
+
+        #crea la lista vecinos a los que agregará las casillas adyacentes disponibles
+        neighbor = list()
+        
+        directions=[(1,0),(1,1),(0,1),(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1)] #las 8 direcciones posibles
+        for k in directions:
+            newState=(i+k[0],j+k[1]) #el nuevo estado posible
+            if h>abs(lab[i][j]-lab[newState[0]][newState[1]]) and newState not in visited : #revisa si es posible moverse ahi y si no se ha visitado
+                neighbor.append(newState)
+
+        for n in neighbor:
+            next_cost = state[2] + 1 #definir que el siguiente path cost será el mismo + 1 (se aleja 1 del inicio)
+            if next_cost<maxLevel:
+                q.append((n, [state[0]] + state[1], next_cost)) #se agrega la coordenada nueva,
+                #la lista de los ya recorridos, el costo del lugar siguiente
+            else:
+                leaves.append((n, [state[0]] + state[1], next_cost))#agrega el nodo a la lista de hojas para regresar a el cuando se complete la ola de nivel
+
+def printsolution(sol, lab):
+    #cambiará los valores de las celdas que forman parte del camino final a 0
+    for coord in range(0, len(sol)):
+        x = sol[coord][1]
+        y = sol[coord][0]
+        lab[y][x] = 0
+
+    #mostrar imagen
+    fig = px.imshow(lab)
+    fig.show()
+
+# MAIN ALGORITHM
+mars_map = np.load('mars_map.npy')
+
+i_start = 1175
+j_start = 285
+i_end = 1135
+j_end = 314
+h = 0.25
+
+inicio = time.time()
+road = IDS(mars_map, i_start, j_start, i_end, j_end, h)
+fin = time.time()
+
+print(road)
+printsolution(road, mars_map)
+
+print(fin-inicio)
